@@ -1,4 +1,5 @@
 from BackTracking import *
+import time
 
 grid = [[5, 3, 0, 0, 7, 0, 0, 0, 0],
         [6, 0, 0, 1, 9, 5, 0, 0, 0],
@@ -17,9 +18,10 @@ def solve_puzzle(puzzle):
     solver.run_solve()
     return solver.puzzle
 
-
-puzzle_solved = solve_puzzle(grid)
 print("SOLVING THE SUDOKU")
+start_time = time.time()
+puzzle_solved = solve_puzzle(grid)
+print("--- %s seconds ---" % (time.time() - start_time))
 
 for elm in puzzle_solved:
     print(elm)
