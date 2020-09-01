@@ -1,11 +1,24 @@
 import cv2
+import numpy as np
+import GridDetector
 
-imgsrc = "C:\\Users\\Admin\\Pictures\\a.png"
+# Displaying the camera in realtime
+cap = cv2.VideoCapture(0)
 
-img = cv2.imread(imgsrc, 0)
-res = cv2.resize(img, (600, 600))
-cv2.imshow('image', res)
-cv2.waitKey(0)
+while (True):
+    # Capture frame-by-frame
+    ret, frame = cap.read()
+
+    #Adding feature on the image to detect the Sudoku
+    canny = GridDetector.detectSudoku(frame)
+    GridDetector.detectSudoku(frame)
+
+    # Display the resulting frame
+    cv2.imshow('frame', canny)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
 cv2.destroyAllWindows()
 
 
