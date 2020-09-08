@@ -7,15 +7,17 @@ import math
 
 def detectSudoku(frame):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    blurred_frame_gray = cv2.blur(gray, (3, 3))
-    edges = cv2.Canny(blurred_frame_gray, 50, 150)
+    # blurred_frame_gray = cv2.blur(gray, (3, 3))
+    edges = cv2.Canny(gray, 50, 150)
 
     # edges = cv2.Canny(gray, 50, 150)
     line_image = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
-    lines = cv2.HoughLines(edges, 2, np.pi / 180, 250, 0, 0)
+    lines = cv2.HoughLines(edges, 2, np.pi / 180, 220, 0, 0)
 
     vertical_lines = []
     horizontal_lines = []
+    listRhoVertical = []
+    listRhoHorizontal = []
 
     if lines is not None:
         for line in lines:
@@ -32,15 +34,34 @@ def detectSudoku(frame):
                 if 135 > math.degrees(theta) > 45:  # horizontal lines between 45 and 90 + 45 degrees
                     cv2.line(line_image, (x1, y1), (x2, y2), (0, 0, 255))
                     horizontal_lines.append(getFunction((x1, y1), (x2, y2)))
+                    listRhoHorizontal.append(
+                        [getFunction((x1, y1), (x2, y2))[0], getFunction((x1, y1), (x2, y2))[1], rho])
                 else:  # vertical lines
                     cv2.line(line_image, (x1, y1), (x2, y2), (0, 255, 0))
                     vertical_lines.append(getFunction((x1, y1), (x2, y2)))
+                    listRhoVertical.append(
+                        [getFunction((x1, y1), (x2, y2))[0], getFunction((x1, y1), (x2, y2))[1], rho])
                 if len(vertical_lines) != 0 and len(horizontal_lines) != 0:
                     for i in range(0, len(vertical_lines)):
                         for j in range(0, len(horizontal_lines)):
                             (x, y) = intersection(vertical_lines[i], horizontal_lines[j])
                             cv2.circle(line_image, (int(x), int(y)), 2, (255, 0, 0), 2)
+                sortedListHorizontal = sortListRho(listRhoHorizontal)  # sort list of the horizontal lines by the rho argument
+                sortedListVertical = sortListRho(listRhoVertical)  # sort list of the vertical lines by the rho argument
+
+                # TODO : Look for the distance between consecutive lines, to look for nine similar 'distances'
+
+
+                # get the middle line of each -> most likely to be a correct one
+                middleVertical = math.ceil(sortedListVertical/2)
+                middleHorizontal = math.ceil(sortedListHorizontal/2)
     return line_image
+
+
+def sortListRho(listToSort):
+    sortedList = sorted(listToSort, key=lambda list: list[2])  # sort list by the third argument
+    print(sortedList)
+    return sortedList
 
 
 # droite A depuis a1, a2 : A = coeffa * x + Ka
